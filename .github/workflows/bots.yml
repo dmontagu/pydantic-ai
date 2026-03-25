@@ -252,10 +252,13 @@ jobs:
       - name: Gather PR context
         run: |
           # Use the script from the base repo (main branch), not the fork
-          gh api repos/${{ github.repository }}/contents/scripts/gather-review-context.sh?ref=${{ github.event.pull_request.base.ref }} --jq .content | base64 -d > /tmp/gather-review-context.sh
-          bash /tmp/gather-review-context.sh ${{ github.event.pull_request.number }} ${{ github.repository }}
+          gh api "repos/${REPO}/contents/scripts/gather-review-context.sh?ref=${BASE_REF}" --jq .content | base64 -d > /tmp/gather-review-context.sh
+          bash /tmp/gather-review-context.sh "$PR_NUMBER" "$REPO"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
 
       - uses: anthropics/claude-code-action@v1
         env:
